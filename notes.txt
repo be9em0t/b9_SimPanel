@@ -1,0 +1,31 @@
+Here’s how we can proceed:
+
+Understanding Your Requirements:
+
+I need to read and set some variables, namely
+- lights
+- autopilot
+- flaps
+- trim
+- throttle
+
+I'd like to have a visual interface, Forms seems like the easiest choice, but I'm open to suggestions.
+
+I need the app to run from another computer on the same network.
+
+
+Development Environment Setup:
+
+I have VS2022, MSFS2024 SDK and .NET (4.7 and 9.xx)
+
+Starting with SimConnect:
+
+I'd like to proceed in steps, as I have pretty rudimentary knowledge of the more arcane C# techniques.
+
+For that, I'd like to proceed in steps:
+- build app running locally to MSFS, that connects to MSFS and returns info that connection is working.
+- add a single checkbox indication the status of Taxi Lights
+- make the checkbox turn off and on Taxi Lights
+- improve UI with button to Connect/Disconnect from MSFS
+
+Once this is completed we'll plan the next steps.
