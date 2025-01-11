@@ -1,4 +1,4 @@
-Here’s how we can proceed:
+Hereï¿½s how we can proceed:
 
 Understanding Your Requirements:
 
@@ -29,3 +29,22 @@ For that, I'd like to proceed in steps:
 - improve UI with button to Connect/Disconnect from MSFS
 
 Once this is completed we'll plan the next steps.
+
+
+==========
+LIGHT TAXI
+LIGHT BEACON
+LIGHT CABIN
+LIGHT LANDING
+LIGHT LOGO
+LIGHT NAV
+LIGHT PANEL
+LIGHT RECOGNITION
+LIGHT STROBE
+LIGHT WING
+------
+GENERAL ENG MIXTURE LEVER POSITION, percent
+GENERAL ENG PROPELLER LEVER POSITION, percent
+GENERAL ENG REVERSE THRUST ENGAGED, Bool, ReadOnly
+GENERAL ENG THROTTLE LEVER POSITION, percent
+TURB ENG CONDITION LEVER POSITION, Enum
