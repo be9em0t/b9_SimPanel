@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace b9_SimPanel.Properties
+namespace MSFSClient.Properties
 {
 
 
