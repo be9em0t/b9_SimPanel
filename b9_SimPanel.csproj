@@ -109,6 +109,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -128,9 +129,19 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="notes.txt" />
+    <Content Include="Resources\PanelMatric\round-1-down.png" />
+    <Content Include="Resources\PanelMatric\round-1-up.png" />
+    <Content Include="Resources\PanelMatric\square_down.png" />
+    <Content Include="Resources\PanelMatric\square_up.png" />
+    <None Include="Resources\PanelMatric\sw-br-down.png" />
+    <None Include="Resources\PanelMatric\sw-br-mid.png" />
+    <None Include="Resources\PanelMatric\sw-br-up.png" />
+    <Content Include="Resources\PanelMatric\tiny_blk_down.png" />
+    <Content Include="Resources\PanelMatric\tiny_blk_up.png" />
     <Content Include="SimConnect.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
