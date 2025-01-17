@@ -36,24 +36,25 @@
             // 
             // button_Serve
             // 
-            this.button_Serve.Location = new System.Drawing.Point(481, 253);
+            this.button_Serve.Location = new System.Drawing.Point(449, 30);
             this.button_Serve.Name = "button_Serve";
-            this.button_Serve.Size = new System.Drawing.Size(169, 83);
+            this.button_Serve.Size = new System.Drawing.Size(168, 83);
             this.button_Serve.TabIndex = 0;
-            this.button_Serve.Text = "button_Send";
+            this.button_Serve.Text = "Start";
             this.button_Serve.UseVisualStyleBackColor = true;
             // 
             // textBoxIP
             // 
-            this.textBoxIP.Location = new System.Drawing.Point(117, 305);
+            this.textBoxIP.Location = new System.Drawing.Point(55, 56);
             this.textBoxIP.Name = "textBoxIP";
             this.textBoxIP.ReadOnly = true;
-            this.textBoxIP.Size = new System.Drawing.Size(200, 31);
+            this.textBoxIP.Size = new System.Drawing.Size(213, 31);
             this.textBoxIP.TabIndex = 1;
+            this.textBoxIP.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // textBoxPort
             // 
-            this.textBoxPort.Location = new System.Drawing.Point(336, 305);
+            this.textBoxPort.Location = new System.Drawing.Point(302, 56);
             this.textBoxPort.Name = "textBoxPort";
             this.textBoxPort.Size = new System.Drawing.Size(100, 31);
             this.textBoxPort.TabIndex = 2;
