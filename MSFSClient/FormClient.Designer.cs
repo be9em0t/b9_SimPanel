@@ -33,6 +33,7 @@
             this.textBoxPort = new System.Windows.Forms.TextBox();
             this.button_Connect = new System.Windows.Forms.Button();
             this.txtResults = new System.Windows.Forms.TextBox();
+            this.but_Lights_Taxi = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // textBoxIP
@@ -41,6 +42,7 @@
             this.textBoxIP.Name = "textBoxIP";
             this.textBoxIP.Size = new System.Drawing.Size(235, 31);
             this.textBoxIP.TabIndex = 0;
+            this.textBoxIP.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // textBoxPort
             // 
@@ -51,9 +53,9 @@
             // 
             // button_Connect
             // 
-            this.button_Connect.Location = new System.Drawing.Point(102, 129);
+            this.button_Connect.Location = new System.Drawing.Point(530, 31);
             this.button_Connect.Name = "button_Connect";
-            this.button_Connect.Size = new System.Drawing.Size(120, 62);
+            this.button_Connect.Size = new System.Drawing.Size(146, 62);
             this.button_Connect.TabIndex = 2;
             this.button_Connect.Text = "Connect";
             this.button_Connect.UseVisualStyleBackColor = true;
@@ -67,11 +69,21 @@
             this.txtResults.Size = new System.Drawing.Size(574, 141);
             this.txtResults.TabIndex = 3;
             // 
+            // but_Lights_Taxi
+            // 
+            this.but_Lights_Taxi.Location = new System.Drawing.Point(102, 129);
+            this.but_Lights_Taxi.Name = "but_Lights_Taxi";
+            this.but_Lights_Taxi.Size = new System.Drawing.Size(178, 68);
+            this.but_Lights_Taxi.TabIndex = 5;
+            this.but_Lights_Taxi.Text = "Lights Taxi";
+            this.but_Lights_Taxi.UseVisualStyleBackColor = true;
+            // 
             // FormClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.but_Lights_Taxi);
             this.Controls.Add(this.txtResults);
             this.Controls.Add(this.button_Connect);
             this.Controls.Add(this.textBoxPort);
@@ -90,6 +102,7 @@
         private System.Windows.Forms.TextBox textBoxPort;
         private System.Windows.Forms.Button button_Connect;
         private System.Windows.Forms.TextBox txtResults;
+        private System.Windows.Forms.Button but_Lights_Taxi;
     }
 }
 

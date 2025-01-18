@@ -17,27 +17,27 @@ namespace MSFSClient
         private NetworkStream stream;
         private Thread sendThread;
 
+        private bool sendTaxiLightCommand = false;
+
         public FormClient()
         {
             InitializeComponent();
             textBoxIP.Text = "127.0.0.1";
             textBoxPort.Text = "505";
+            but_Lights_Taxi.Click += new EventHandler(but_Lights_Taxi_Click);
         }
 
         private void button_Connect_Click(object sender, EventArgs e)
         {
             if (!isConnected)
             {
-                // Connect
                 Connect();
             }
             else
             {
-                // Disconnect
                 Disconnect();
             }
         }
-
 
         private void Connect()
         {
@@ -55,7 +55,6 @@ namespace MSFSClient
                 client = new TcpClient(ipAddress, port);
                 stream = client.GetStream();
 
-                // Change the button text to "Disconnect"
                 button_Connect.Text = "Disconnect";
                 isConnected = true;
 
@@ -106,6 +105,13 @@ namespace MSFSClient
             while (isConnected)
             {
                 string message = "Client sent: " + DateTime.Now.ToString("HH:mm:ss");
+
+                if (sendTaxiLightCommand)
+                {
+                    message += " LIGHT_TAXI_ON";
+                    sendTaxiLightCommand = false; // Reset the flag after sending the command
+                }
+
                 byte[] data = Encoding.UTF8.GetBytes(message);
                 stream.Write(data, 0, data.Length);
                 Thread.Sleep(1000);
@@ -137,6 +143,12 @@ namespace MSFSClient
                     break;
                 }
             }
+        }
+
+        private void but_Lights_Taxi_Click(object sender, EventArgs e)
+        {
+            sendTaxiLightCommand = true;
+            Console.WriteLine("Clicked");
         }
 
     }

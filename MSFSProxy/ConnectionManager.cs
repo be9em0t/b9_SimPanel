@@ -10,6 +10,8 @@ namespace MSFServer
     public class ConnectionManager
     {
         public bool IsListening { get; private set; }
+        public bool IsSimAllowed { get; set; }
+
         private TcpListener server;
         private TcpClient client;
         private NetworkStream stream;
@@ -26,7 +28,10 @@ namespace MSFServer
         {
             server.Start();
             IsListening = true;
-            simConnection.Start();
+            if (IsSimAllowed == true)
+            {
+                simConnection.Start();
+            }
 
             listenThread = new Thread(ListenForClients);
             listenThread.IsBackground = true;
@@ -85,6 +90,12 @@ namespace MSFServer
 
                     string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                     Console.WriteLine("Received: " + receivedData);
+
+                    // Check for specific commands to send to SimConnect
+                    if (receivedData.Contains("LIGHT_TAXI_ON"))
+                    {
+                        simConnection.SendTaxiLightEvent();
+                    }
 
                     // Acquire data to send
                     if (DataQueues.TryDequeueReceive(out string dataToSend))
