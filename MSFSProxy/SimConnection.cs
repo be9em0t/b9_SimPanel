@@ -3,6 +3,8 @@ using System.IO;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading;
+using Microsoft.FlightSimulator.SimConnect;
+using System.Runtime.InteropServices;
 //using System.Threading.Tasks;
 //using System.Collections.Generic;
 //using System.Linq;
