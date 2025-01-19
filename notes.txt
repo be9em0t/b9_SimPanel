@@ -1,31 +1,13 @@
-Simconnect2024 does not work reliably over network, so - proxy+client.
+NextStep:
+- Ensure Client UI reflects the state of Flight Sim.
+- This will mean adding logic to sync button Images with the state.
 
-Proxy:
-1.init 
-	- Start/Stop proxy + symlink 
-	- test mode displaying data from symlink (in a textbox?)
-	- types of data and frequency
-	- .ini file
-	- different setups for different planes
-2.on connect
-	- Read symlink -> send to client 
-	- Read client -> send to symlink 
-3.on disconnect 
+- Maybe set a second, faster simConnect.RequestDataOnSimObject() for the throttle 
+- Maybe imitate detente by being able to drag only up to detente.
+- Maybe Add a button to reread all values from the Sim.
 
-Client:
-1.init 
-	- Start/Stop proxy link 
-	- .ini file
-	- different setups for different planes
-2.on connect
-	- Read proxy -> update MSForm 
-	- MSForm User input -> send to proxy 
-3.on disconnect 
 
-== old version ==
-Here�s how we can proceed:
-
-Understanding Your Requirements:
+==== Understanding Your Requirements: ====
 
 I need to read and set some variables, namely
 - lights
@@ -33,17 +15,6 @@ I need to read and set some variables, namely
 - flaps
 - trim
 - throttle
-
-I'd like to have a visual interface, Forms seems like the easiest choice, but I'm open to suggestions.
-
-I need the app to run from another computer on the same network.
-
-
-Development Environment Setup:
-
-I have VS2022, MSFS2024 SDK and .NET (4.7 and 9.xx)
-
-Starting with SimConnect:
 
 I'd like to proceed in steps, as I have pretty rudimentary knowledge of the more arcane C# techniques.
 
@@ -55,12 +26,13 @@ For that, I'd like to proceed in steps:
 
 Once this is completed we'll plan the next steps.
 
+=== into message to restart conversation ====
 
 ==========
+LIGHT LANDING
 LIGHT TAXI
 LIGHT BEACON
 LIGHT CABIN
-LIGHT LANDING
 LIGHT LOGO
 LIGHT NAV
 LIGHT PANEL

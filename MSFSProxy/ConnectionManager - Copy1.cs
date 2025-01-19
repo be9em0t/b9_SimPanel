@@ -1,86 +1,59 @@
 ﻿using System;
-using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using Newtonsoft.Json;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace MSFServer
 {
-    public partial class FormProxy : Form
+    public class ConnectionManager
     {
+        public bool IsListening { get; private set; }
+        public bool IsSimAllowed { get; set; }
+
         private TcpListener server;
         private TcpClient client;
         private NetworkStream stream;
         private Thread listenThread;
-        private bool isListening = false;
+        private SimConnection simConnection;
 
-        public FormProxy()
+        public ConnectionManager(int port)
         {
-            InitializeComponent();
-            textBoxIP.Text = GetLocalIPv4();
-            textBoxPort.Text = "505";
-            button_Serve.Click += new EventHandler(button_Serve_Click);
-        }
-
-        private void button_Serve_Click(object sender, EventArgs e)
-        {
-            if (!isListening)
-            {
-                // Start the server
-                Serve();
-            }
-            else
-            {
-                // Stop the server
-                StopServer();
-            }
-        }
-
-        private void Serve()
-        {
-            int port;
-            if (!int.TryParse(textBoxPort.Text, out port))
-            {
-                MessageBox.Show("Please enter a valid port number.");
-                return;
-            }
-
             server = new TcpListener(IPAddress.Any, port);
+            simConnection = new SimConnection();
+        }
+
+        public void Start()
+        {
             server.Start();
-            isListening = true;
-            button_Serve.Text = "Stop";
+            IsListening = true;
+            if (IsSimAllowed == true)
+            {
+                simConnection.Start();
+            }
 
             listenThread = new Thread(ListenForClients);
             listenThread.IsBackground = true;
             listenThread.Start();
         }
 
-        private void StopServer()
+        public void Stop()
         {
-            try
-            {
-                isListening = false;
+            IsListening = false;
+            simConnection.Stop();
 
-                if (client != null)
-                    client.Close();
-                if (server != null)
-                    server.Stop();
-
-                button_Serve.Text = "Serve";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error: " + ex.Message);
-            }
+            if (client != null)
+                client.Close();
+            if (server != null)
+                server.Stop();
         }
 
         private void ListenForClients()
         {
             try
             {
-                while (isListening)
+                while (IsListening)
                 {
                     client = server.AcceptTcpClient();
                     stream = client.GetStream();
@@ -92,20 +65,20 @@ namespace MSFServer
             }
             catch (SocketException ex)
             {
-                if (isListening)
+                if (IsListening)
                 {
-                    Invoke(new Action(() => MessageBox.Show("Error: " + ex.Message)));
+                    MessageBox.Show("Error: " + ex.Message);
                 }
                 else
                 {
-                    // Server stopped, ignore the exception
+                    Console.WriteLine("Bye!");
                 }
             }
         }
 
         private void HandleClientComm()
         {
-            while (isListening && client.Connected)
+            while (IsListening && client.Connected)
             {
                 try
                 {
@@ -116,13 +89,23 @@ namespace MSFServer
                     string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                     Console.WriteLine("Received: " + receivedData);
 
-                    string response = "Proxy sent: " + receivedData;
-                    byte[] data = Encoding.UTF8.GetBytes(response);
-                    stream.Write(data, 0, data.Length);
+                    // Check for specific commands to send to SimConnect
+                    if (receivedData.Contains("LIGHT_TAXI_ON"))
+                    {
+                        simConnection.SendTaxiLightEvent();
+                    }
+
+                    // Acquire data to send
+                    if (DataQueues.TryDequeueReceive(out string dataToSend))
+                    {
+                        string response = "From sim: " + dataToSend;
+                        byte[] data = Encoding.UTF8.GetBytes(response);
+                        stream.Write(data, 0, data.Length);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Invoke(new Action(() => MessageBox.Show("Error: " + ex.Message)));
+                    // Handle exception
                     break;
                 }
             }
@@ -134,8 +117,7 @@ namespace MSFServer
                 client.Close();
         }
 
-
-        static string GetLocalIPv4()
+        public static string GetLocalIPv4()
         {
             string localIP = string.Empty;
             foreach (var ip in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
@@ -149,6 +131,5 @@ namespace MSFServer
             Console.WriteLine(localIP);
             return localIP;
         }
-
     }
 }

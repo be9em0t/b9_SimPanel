@@ -6,25 +6,57 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
+using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
 
 namespace MSFSClient
 {
 
     public partial class FormClient : Form
     {
+        private IniFile iniFile;
         private bool isConnected = false;
         private TcpClient client;
         private NetworkStream stream;
         private Thread sendThread;
+        private ConcurrentQueue<string> commandQueue = new ConcurrentQueue<string>();
+
 
         private bool sendTaxiLightCommand = false;
 
         public FormClient()
         {
             InitializeComponent();
-            textBoxIP.Text = "127.0.0.1";
-            textBoxPort.Text = "505";
+            iniFile = new IniFile("Settings.ini");
+            textBoxIP.Text = iniFile.Read("Settings", "IPAddress");
+            textBoxPort.Text = iniFile.Read("Settings", "Port");
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormProxy_FormClosing);
+
+            pict_Light_Landing.Click += new EventHandler(pict_Light_Landing_Click);
+            pict_Lights_Taxi.Click += new EventHandler(pict_Lights_Taxi_Click);
+            pict_Light_Beacon.Click += new EventHandler(pict_Light_Beacon_Click);
             but_Lights_Taxi.Click += new EventHandler(but_Lights_Taxi_Click);
+        }
+
+        private void pict_Light_Landing_Click(object sender, EventArgs e)
+        { // Your click event logic here
+          Console.WriteLine("pict_Landing clicked!");
+        }
+
+        private void pict_Lights_Taxi_Click(object sender, EventArgs e)
+        { // Your click event logic here
+          Console.WriteLine("pict_Taxi clicked!");
+        }
+
+        private void pict_Light_Beacon_Click(object sender, EventArgs e)
+        { // Your click event logic here
+          Console.WriteLine("pict_Beacon clicked!");
+        }
+
+        private void but_Lights_Taxi_Click(object sender, EventArgs e)
+        {
+            commandQueue.Enqueue("LIGHT_TAXI_ON");
+            Console.WriteLine("LIGHT_TAXI");
         }
 
         private void button_Connect_Click(object sender, EventArgs e)
@@ -59,9 +91,9 @@ namespace MSFSClient
                 isConnected = true;
 
                 // Start the sending thread
-                sendThread = new Thread(SendData);
-                sendThread.IsBackground = true;
-                sendThread.Start();
+                Thread sendDataThread = new Thread(SendData);
+                sendDataThread.IsBackground = true;
+                sendDataThread.Start();
 
                 // Start the receiving thread
                 Thread receiveThread = new Thread(ReceiveData);
@@ -90,9 +122,6 @@ namespace MSFSClient
                 button_Connect.Text = "Connect";
                 isConnected = false;
                 txtResults.Text = "Disconnected";
-
-                if (sendThread != null && sendThread.IsAlive)
-                    sendThread.Abort();
             }
             catch (Exception ex)
             {
@@ -106,15 +135,21 @@ namespace MSFSClient
             {
                 string message = "Client sent: " + DateTime.Now.ToString("HH:mm:ss");
 
-                if (sendTaxiLightCommand)
+                // Process commands from the queue
+                while (commandQueue.TryDequeue(out string command))
                 {
-                    message += " LIGHT_TAXI_ON";
-                    sendTaxiLightCommand = false; // Reset the flag after sending the command
+                    message += " " + command;
                 }
+
+                //if (sendTaxiLightCommand)
+                //{
+                //    message += " LIGHT_TAXI_ON";
+                //    sendTaxiLightCommand = false; // Reset the flag after sending the command
+                //}
 
                 byte[] data = Encoding.UTF8.GetBytes(message);
                 stream.Write(data, 0, data.Length);
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
             }
         }
 
@@ -145,11 +180,13 @@ namespace MSFSClient
             }
         }
 
-        private void but_Lights_Taxi_Click(object sender, EventArgs e)
+        private void FormProxy_FormClosing(object sender, FormClosingEventArgs e)
         {
-            sendTaxiLightCommand = true;
-            Console.WriteLine("Clicked");
+            iniFile.Write("Settings", "IPAddress", textBoxIP.Text);
+            iniFile.Write("Settings", "Port", textBoxPort.Text);
+            Console.WriteLine("Settings.ini updated");
         }
 
     }
+
 }

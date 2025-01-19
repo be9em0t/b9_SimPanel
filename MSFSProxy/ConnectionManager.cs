@@ -17,11 +17,13 @@ namespace MSFServer
         private NetworkStream stream;
         private Thread listenThread;
         private SimConnection simConnection;
+        private IntPtr windowHandle;
 
-        public ConnectionManager(int port)
+        public ConnectionManager(IntPtr handle, int port)
         {
             server = new TcpListener(IPAddress.Any, port);
             simConnection = new SimConnection();
+            windowHandle = handle;
         }
 
         public void Start()
@@ -30,6 +32,7 @@ namespace MSFServer
             IsListening = true;
             if (IsSimAllowed == true)
             {
+                simConnection.Initialize(windowHandle); // Pass the window handle
                 simConnection.Start();
             }
 
@@ -41,7 +44,10 @@ namespace MSFServer
         public void Stop()
         {
             IsListening = false;
-            simConnection.Stop();
+            if (simConnection != null)
+            {
+                simConnection.Stop();
+            }
 
             if (client != null)
                 client.Close();
@@ -67,11 +73,10 @@ namespace MSFServer
             {
                 if (IsListening)
                 {
-                    MessageBox.Show("Error: " + ex.Message);
+                    MessageBox.Show("Error in ListenForClients: " + ex.Message);
                 }
                 else
                 {
-                    // Server stopped, ignore the exception
                     Console.WriteLine("Bye!");
                 }
             }
@@ -83,7 +88,6 @@ namespace MSFServer
             {
                 try
                 {
-                    //Console.WriteLine("Ready to transmit");
                     byte[] buffer = new byte[1024];
                     int bytesRead = stream.Read(buffer, 0, buffer.Length);
                     if (bytesRead == 0) break;  // Connection closed
@@ -100,18 +104,14 @@ namespace MSFServer
                     // Acquire data to send
                     if (DataQueues.TryDequeueReceive(out string dataToSend))
                     {
-                        string response = "Sim sent: " + dataToSend;
+                        string response = "From sim: " + dataToSend;
                         byte[] data = Encoding.UTF8.GetBytes(response);
                         stream.Write(data, 0, data.Length);
                     }
-                    //// Acquire data to send old
-                    //string response = "Proxy sent: " + receivedData;
-                    //byte[] data = Encoding.UTF8.GetBytes(response);
-                    //stream.Write(data, 0, data.Length);
                 }
                 catch (Exception ex)
                 {
-                    // Handle exception
+                    MessageBox.Show("Error in HandleClientComm: " + ex.Message);
                     break;
                 }
             }
@@ -121,6 +121,14 @@ namespace MSFServer
                 stream.Close();
             if (client != null)
                 client.Close();
+        }
+
+        public void ReceiveMessage(Message m)
+        {
+            if (simConnection != null)
+            {
+                simConnection.ReceiveMessage(m);
+            }
         }
 
         public static string GetLocalIPv4()
