@@ -34,6 +34,7 @@
             this.textBoxPort = new System.Windows.Forms.TextBox();
             this.but_Lights_Taxi = new System.Windows.Forms.Button();
             this.checkBox_Sim = new System.Windows.Forms.CheckBox();
+            this.checkBox_DarkMode = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // button_Serve
@@ -63,12 +64,13 @@
             // 
             // but_Lights_Taxi
             // 
-            this.but_Lights_Taxi.Location = new System.Drawing.Point(46, 314);
+            this.but_Lights_Taxi.Location = new System.Drawing.Point(224, 131);
             this.but_Lights_Taxi.Name = "but_Lights_Taxi";
             this.but_Lights_Taxi.Size = new System.Drawing.Size(178, 68);
             this.but_Lights_Taxi.TabIndex = 3;
             this.but_Lights_Taxi.Text = "Lights Taxi";
             this.but_Lights_Taxi.UseVisualStyleBackColor = true;
+            this.but_Lights_Taxi.Visible = false;
             // 
             // checkBox_Sim
             // 
@@ -80,11 +82,22 @@
             this.checkBox_Sim.Text = "SimConnect";
             this.checkBox_Sim.UseVisualStyleBackColor = true;
             // 
+            // checkBox_DarkMode
+            // 
+            this.checkBox_DarkMode.AutoSize = true;
+            this.checkBox_DarkMode.Location = new System.Drawing.Point(46, 152);
+            this.checkBox_DarkMode.Name = "checkBox_DarkMode";
+            this.checkBox_DarkMode.Size = new System.Drawing.Size(149, 29);
+            this.checkBox_DarkMode.TabIndex = 4;
+            this.checkBox_DarkMode.Text = "Dark Mode";
+            this.checkBox_DarkMode.UseVisualStyleBackColor = true;
+            // 
             // FormProxy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(681, 418);
+            this.ClientSize = new System.Drawing.Size(671, 246);
+            this.Controls.Add(this.checkBox_DarkMode);
             this.Controls.Add(this.checkBox_Sim);
             this.Controls.Add(this.but_Lights_Taxi);
             this.Controls.Add(this.textBoxPort);
@@ -105,6 +118,7 @@
         private System.Windows.Forms.TextBox textBoxPort;
         private System.Windows.Forms.Button but_Lights_Taxi;
         private System.Windows.Forms.CheckBox checkBox_Sim;
+        private System.Windows.Forms.CheckBox checkBox_DarkMode;
     }
 }
 
