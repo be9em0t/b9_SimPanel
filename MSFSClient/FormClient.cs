@@ -8,6 +8,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
+using System.Data.SqlClient;
 
 namespace MSFSClient
 {
@@ -32,20 +33,26 @@ namespace MSFSClient
             textBoxPort.Text = iniFile.Read("Settings", "Port");
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormProxy_FormClosing);
 
+            // light switches
             pict_Light_Landing.Click += new EventHandler(pict_Light_Landing_Click);
             pict_Lights_Taxi.Click += new EventHandler(pict_Lights_Taxi_Click);
             pict_Light_Beacon.Click += new EventHandler(pict_Light_Beacon_Click);
+
+            // test button
             but_Lights_Taxi.Click += new EventHandler(but_Lights_Taxi_Click);
         }
 
+        // ===== panel controls ======
         private void pict_Light_Landing_Click(object sender, EventArgs e)
         { // Your click event logic here
           Console.WriteLine("pict_Landing clicked!");
         }
 
         private void pict_Lights_Taxi_Click(object sender, EventArgs e)
-        { // Your click event logic here
-          Console.WriteLine("pict_Taxi clicked!");
+        {
+            commandQueue.Enqueue("LIGHT_TAXI_ON");
+            Console.WriteLine("LIGHT_TAXI");
+
         }
 
         private void pict_Light_Beacon_Click(object sender, EventArgs e)
@@ -53,6 +60,8 @@ namespace MSFSClient
           Console.WriteLine("pict_Beacon clicked!");
         }
 
+
+        // ===== test control ======
         private void but_Lights_Taxi_Click(object sender, EventArgs e)
         {
             commandQueue.Enqueue("LIGHT_TAXI_ON");
@@ -71,6 +80,74 @@ namespace MSFSClient
             }
         }
 
+        // ==== Send and Receive data =====
+        private void SendData()
+        {
+            while (isConnected)
+            {
+                //string message = "Client: " + DateTime.Now.ToString("HH:mm:ss");
+                string message = DateTime.Now.ToString("HH:mm:ss");
+
+                // Process commands from the queue
+                while (commandQueue.TryDequeue(out string command))
+                {
+                    message += " " + command;
+                }
+
+                //if (sendTaxiLightCommand)
+                //{
+                //    message += " LIGHT_TAXI_ON";
+                //    sendTaxiLightCommand = false; // Reset the flag after sending the command
+                //}
+
+                byte[] data = Encoding.UTF8.GetBytes(message);
+                try { 
+                    stream.Write(data, 0, data.Length);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error: " + ex.Message);
+                    break;
+                }
+
+                Thread.Sleep(100);
+            }
+        }
+
+        private void ReceiveData()
+        {
+            while (isConnected)
+            {
+                try
+                {
+                    byte[] buffer = new byte[1024];
+                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
+                    string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+                    Invoke(new Action(() =>
+                    {
+                        txtResults.Text = "Received: " + receivedData;
+                    }));
+
+                    //// Check for specific commands to send to SimConnect
+                    //if (receivedData.Contains("LIGHT_TAXI_ON"))
+                    //{
+                    //    simConnection.SendTaxiLightEvent();
+                    //}
+                }
+                catch (Exception ex)
+                {
+                    Invoke(new Action(() =>
+                    {
+                        txtResults.Text = "Error: " + ex.Message;
+                    }));
+                    break;
+                }
+            }
+        }
+
+
+        // ===== backend logic =====
         private void Connect()
         {
             string ipAddress = textBoxIP.Text;
@@ -126,57 +203,6 @@ namespace MSFSClient
             catch (Exception ex)
             {
                 MessageBox.Show("Error: " + ex.Message);
-            }
-        }
-
-        private void SendData()
-        {
-            while (isConnected)
-            {
-                string message = "Client sent: " + DateTime.Now.ToString("HH:mm:ss");
-
-                // Process commands from the queue
-                while (commandQueue.TryDequeue(out string command))
-                {
-                    message += " " + command;
-                }
-
-                //if (sendTaxiLightCommand)
-                //{
-                //    message += " LIGHT_TAXI_ON";
-                //    sendTaxiLightCommand = false; // Reset the flag after sending the command
-                //}
-
-                byte[] data = Encoding.UTF8.GetBytes(message);
-                stream.Write(data, 0, data.Length);
-                Thread.Sleep(100);
-            }
-        }
-
-        private void ReceiveData()
-        {
-            while (isConnected)
-            {
-                try
-                {
-                    byte[] buffer = new byte[1024];
-                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                    string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-
-                    // Update the UI with the received data
-                    Invoke(new Action(() =>
-                    {
-                        txtResults.Text = "Received: " + receivedData;
-                    }));
-                }
-                catch (Exception ex)
-                {
-                    Invoke(new Action(() =>
-                    {
-                        txtResults.Text = "Error: " + ex.Message;
-                    }));
-                    break;
-                }
             }
         }
 

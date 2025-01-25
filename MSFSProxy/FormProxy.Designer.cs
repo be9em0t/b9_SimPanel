@@ -35,6 +35,7 @@
             this.but_Lights_Taxi = new System.Windows.Forms.Button();
             this.checkBox_Sim = new System.Windows.Forms.CheckBox();
             this.checkBox_DarkMode = new System.Windows.Forms.CheckBox();
+            this.checkBox_RawSimData = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // button_Serve
@@ -64,9 +65,9 @@
             // 
             // but_Lights_Taxi
             // 
-            this.but_Lights_Taxi.Location = new System.Drawing.Point(224, 131);
+            this.but_Lights_Taxi.Location = new System.Drawing.Point(373, 187);
             this.but_Lights_Taxi.Name = "but_Lights_Taxi";
-            this.but_Lights_Taxi.Size = new System.Drawing.Size(178, 68);
+            this.but_Lights_Taxi.Size = new System.Drawing.Size(178, 39);
             this.but_Lights_Taxi.TabIndex = 3;
             this.but_Lights_Taxi.Text = "Lights Taxi";
             this.but_Lights_Taxi.UseVisualStyleBackColor = true;
@@ -75,7 +76,7 @@
             // checkBox_Sim
             // 
             this.checkBox_Sim.AutoSize = true;
-            this.checkBox_Sim.Location = new System.Drawing.Point(449, 152);
+            this.checkBox_Sim.Location = new System.Drawing.Point(455, 152);
             this.checkBox_Sim.Name = "checkBox_Sim";
             this.checkBox_Sim.Size = new System.Drawing.Size(160, 29);
             this.checkBox_Sim.TabIndex = 4;
@@ -92,11 +93,23 @@
             this.checkBox_DarkMode.Text = "Dark Mode";
             this.checkBox_DarkMode.UseVisualStyleBackColor = true;
             // 
+            // checkBox_RawSimData
+            // 
+            this.checkBox_RawSimData.AutoSize = true;
+            this.checkBox_RawSimData.Location = new System.Drawing.Point(236, 152);
+            this.checkBox_RawSimData.Name = "checkBox_RawSimData";
+            this.checkBox_RawSimData.Size = new System.Drawing.Size(173, 29);
+            this.checkBox_RawSimData.TabIndex = 5;
+            this.checkBox_RawSimData.Text = "Raw SimData";
+            this.checkBox_RawSimData.UseVisualStyleBackColor = true;
+            this.checkBox_RawSimData.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
             // FormProxy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(671, 246);
+            this.ClientSize = new System.Drawing.Size(671, 244);
+            this.Controls.Add(this.checkBox_RawSimData);
             this.Controls.Add(this.checkBox_DarkMode);
             this.Controls.Add(this.checkBox_Sim);
             this.Controls.Add(this.but_Lights_Taxi);
@@ -119,6 +132,7 @@
         private System.Windows.Forms.Button but_Lights_Taxi;
         private System.Windows.Forms.CheckBox checkBox_Sim;
         private System.Windows.Forms.CheckBox checkBox_DarkMode;
+        private System.Windows.Forms.CheckBox checkBox_RawSimData;
     }
 }
 

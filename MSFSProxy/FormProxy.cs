@@ -36,6 +36,7 @@ namespace MSFServer
             textBoxPort.Text = iniFile.Read("Settings", "Port");
             checkBox_Sim.Checked = iniFile.Read("Settings", "EnableSim") == "True";
             checkBox_DarkMode.Checked = iniFile.Read("Settings", "DarkTheme") == "True";
+            checkBox_RawSimData.Checked = iniFile.Read("Settings", "RawSimData") == "True";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormProxy_FormClosing);
             DarkTheme();
             button_Serve.Click += new EventHandler(button_Serve_Click);
@@ -48,6 +49,7 @@ namespace MSFServer
                 // Start the server
                 connectionManager = new ConnectionManager(this.Handle, int.Parse(textBoxPort.Text)); // Pass the handle here
                 connectionManager.IsSimAllowed = checkBox_Sim.Checked;
+                connectionManager.IsSimRawData = checkBox_RawSimData.Checked;
                 connectionManager.Start();
                 button_Serve.Text = "Stop";
             }
@@ -66,6 +68,7 @@ namespace MSFServer
             iniFile.Write("Settings", "Port", textBoxPort.Text);
             iniFile.Write("Settings", "EnableSim", checkBox_Sim.Checked.ToString());
             iniFile.Write("Settings", "DarkTheme", checkBox_DarkMode.Checked.ToString());
+            iniFile.Write("Settings", "RawSimData", checkBox_RawSimData.Checked.ToString());
             Console.WriteLine("Settings.ini updated");
         }
 
@@ -152,6 +155,11 @@ namespace MSFServer
 
             // Set the height of the TextBox based on the text height
             textBox.Height = textSize.Height + 42; // Add some padding for better appearance
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

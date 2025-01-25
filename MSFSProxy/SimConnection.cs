@@ -8,6 +8,9 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Reflection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MSFServer
 {
@@ -16,6 +19,7 @@ namespace MSFServer
         private SimConnect simConnect;
         private const int WM_USER_SIMCONNECT = 0x0402;
         private Dictionary<string, object> previousValues = new Dictionary<string, object>();
+        private int IsSimRawData;
 
         public void Initialize(IntPtr windowHandle)
         {
@@ -23,11 +27,18 @@ namespace MSFServer
             {
                 simConnect = new SimConnect("Managed Data Request", windowHandle, WM_USER_SIMCONNECT, null, 0);
 
-                // missing struct
                 simConnect.AddToDataDefinition(DEFINITIONS.Struct1, "PLANE ALTITUDE", "feet", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+                //lights
                 simConnect.AddToDataDefinition(DEFINITIONS.Struct1, "LIGHT LANDING", "bool", SIMCONNECT_DATATYPE.INT32, 0.0f, SimConnect.SIMCONNECT_UNUSED);
                 simConnect.AddToDataDefinition(DEFINITIONS.Struct1, "LIGHT TAXI", "bool", SIMCONNECT_DATATYPE.INT32, 0.0f, SimConnect.SIMCONNECT_UNUSED);
                 simConnect.AddToDataDefinition(DEFINITIONS.Struct1, "LIGHT BEACON", "bool", SIMCONNECT_DATATYPE.INT32, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+
+                // simConnect.AddToDataDefinition(DEFINITIONS.Struct1, "LIGHT STROBE", "bool", SIMCONNECT_DATATYPE.INT32, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+                // simConnect.AddToDataDefinition(DEFINITIONS.Struct1, "LIGHT NAV", "bool", SIMCONNECT_DATATYPE.INT32, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+                // simConnect.AddToDataDefinition(DEFINITIONS.Struct1, "LIGHT WING", "bool", SIMCONNECT_DATATYPE.INT32, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+                // simConnect.AddToDataDefinition(DEFINITIONS.Struct1, "LIGHT RECOGNITION", "bool", SIMCONNECT_DATATYPE.INT32, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+                // simConnect.AddToDataDefinition(DEFINITIONS.Struct1, "LIGHT LOGO", "bool", SIMCONNECT_DATATYPE.INT32, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+
                 simConnect.RegisterDataDefineStruct<Struct1>(DEFINITIONS.Struct1);
 
                 simConnect.OnRecvSimobjectData += SimConnect_OnRecvSimobjectData;
@@ -42,8 +53,9 @@ namespace MSFServer
             }
         }
 
-        public void Start()
+        public void Start(bool simRawData)
         {
+            IsSimRawData = simRawData ? 1 : 0;
             simConnect.RequestDataOnSimObject(
                 DATA_REQUESTS.Request1,
                 DEFINITIONS.Struct1,
@@ -80,21 +92,23 @@ namespace MSFServer
 
         private void SimConnect_OnRecvSimobjectData(SimConnect sender, SIMCONNECT_RECV_SIMOBJECT_DATA data)
         {
-            Console.WriteLine("OnRecvSimobjectData invoked");
             if ((DATA_REQUESTS)data.dwRequestID == DATA_REQUESTS.Request1)
             {
-                Struct1 receivedData = (Struct1)data.dwData[0];
+                Struct1 receivedSimData = (Struct1)data.dwData[0];
 
                 // Convert struct to dictionary for comparison
-                var receivedDataDict = StructToDictionary(receivedData);
+                var receivedSimDataDict = StructToDictionary(receivedSimData);
 
-                List<string> changedVariables = DetectChanges(receivedDataDict);
+                Console.WriteLine(IsSimRawData);
+                var simDataDict = DetectChangesDict(receivedSimDataDict, IsSimRawData);
 
-                if (changedVariables.Count > 0)
+                if (simDataDict.Count > 0)
                 {
-                    string message = "Sim sent: " + string.Join(", ", changedVariables);
-                    DataQueues.EnqueueReceive(message);
-                    Console.WriteLine("Received data from SimConnect: " + message);
+                    // Serialize the dictionary to JSON
+                    string simDataJson = JsonConvert.SerializeObject(simDataDict);
+
+                    DataQueues.EnqueueReceive(simDataJson);
+                    Console.WriteLine("< " + simDataJson);
                 }
             }
         }
@@ -109,23 +123,30 @@ namespace MSFServer
             return dict;
         }
 
-        private List<string> DetectChanges(Dictionary<string, object> receivedDataDict)
+        private Dictionary<string, object> DetectChangesDict(Dictionary<string, object> receivedSimDataDict, int raw)
         {
-            List<string> changedVariables = new List<string>();
+            var variablesDict = new Dictionary<string, object>();
+            variablesDict["< RawSim>"] = raw;
 
-            foreach (var kvp in receivedDataDict)
+            if (raw == 0)
             {
-                string key = kvp.Key;
-                object value = kvp.Value;
-
-                if (!previousValues.ContainsKey(key) || !Equals(previousValues[key], value))
+                foreach (var kvp in receivedSimDataDict)
                 {
-                    previousValues[key] = value;
-                    changedVariables.Add($"{key} = {value}");
+                    string key = kvp.Key;
+                    object value = kvp.Value;
+
+                    if (!previousValues.ContainsKey(key) || !Equals(previousValues[key], value))
+                    {
+                        previousValues[key] = value;
+                        variablesDict[key] = value;
+                    }
                 }
             }
+            else {
+                variablesDict = receivedSimDataDict;
+            }
 
-            return changedVariables;
+            return variablesDict;
         }
 
         public void SendTaxiLightEvent()
@@ -133,11 +154,11 @@ namespace MSFServer
             try
             {
                 simConnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENTS.LIGHT_TAXI, 0, SIMCONNECT_GROUP_PRIORITY.HIGHEST, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
-                Console.WriteLine("Taxi light event sent.");
+                Console.WriteLine("> Sim: LIGHT_TAXI");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error sending taxi light event: " + ex.Message);
+                Console.WriteLine("Error > Sim: LIGHT_TAXI: " + ex.Message);
             }
         }
 

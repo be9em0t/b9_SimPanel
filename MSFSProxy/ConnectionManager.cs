@@ -11,6 +11,7 @@ namespace MSFServer
     {
         public bool IsListening { get; private set; }
         public bool IsSimAllowed { get; set; }
+        public bool IsSimRawData { get; set; }
 
         private TcpListener server;
         private TcpClient client;
@@ -33,7 +34,8 @@ namespace MSFServer
             if (IsSimAllowed == true)
             {
                 simConnection.Initialize(windowHandle); // Pass the window handle
-                simConnection.Start();
+                simConnection.Start(IsSimRawData);
+                Console.WriteLine("IS siM rAWdATE:" + IsSimRawData);
             }
 
             listenThread = new Thread(ListenForClients);
@@ -92,11 +94,12 @@ namespace MSFServer
                     int bytesRead = stream.Read(buffer, 0, buffer.Length);
                     if (bytesRead == 0) break;  // Connection closed
 
-                    string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    Console.WriteLine("Received: " + receivedData);
+                    // message structure
+                    string receivedSimData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    Console.WriteLine("< " + receivedSimData);
 
                     // Check for specific commands to send to SimConnect
-                    if (receivedData.Contains("LIGHT_TAXI_ON"))
+                    if (receivedSimData.Contains("LIGHT_TAXI_ON"))
                     {
                         simConnection.SendTaxiLightEvent();
                     }
