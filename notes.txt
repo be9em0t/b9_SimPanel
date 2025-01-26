@@ -1,10 +1,10 @@
 NextStep:
 - Ensure Client UI reflects the state of Flight Sim.
-- This will mean adding logic to sync button Images with the state.
+✓ This will mean adding logic to sync button Images with the state.
 
-- Maybe set a second, faster simConnect.RequestDataOnSimObject() for the throttle 
+✓ Maybe set a second, faster simConnect.RequestDataOnSimObject() for the throttle 
 - Maybe imitate detente by being able to drag only up to detente.
-- Maybe Add a button to reread all values from the Sim.
+✓ Maybe Add a button to reread all values from the Sim (or just reconnect?)
 
 
 ==== Understanding Your Requirements: ====
@@ -32,13 +32,13 @@ Once this is completed we'll plan the next steps.
 LIGHT LANDING
 LIGHT TAXI
 LIGHT BEACON
-LIGHT CABIN
-LIGHT LOGO
-LIGHT NAV
-LIGHT PANEL
-LIGHT RECOGNITION
 LIGHT STROBE
+LIGHT NAV
 LIGHT WING
+LIGHT RECOGNITION
+LIGHT LOGO
+LIGHT PANEL
+LIGHT CABIN
 ------
 GENERAL ENG MIXTURE LEVER POSITION, percent
 GENERAL ENG PROPELLER LEVER POSITION, percent

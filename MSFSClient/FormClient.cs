@@ -169,7 +169,7 @@ namespace MSFSClient
             try
             {
                 client = new TcpClient(ipAddress, port);
-                stream = client.GetStream();
+                stream = client?.GetStream();
 
                 button_Connect.Text = "Disconnect";
                 isConnected = true;
@@ -196,11 +196,8 @@ namespace MSFSClient
         {
             try
             {
-                if (stream != null)
-                    stream.Close();
-
-                if (client != null)
-                    client.Close();
+                stream?.Close();
+                client?.Close();
 
                 // Change the button text back to "Connect"
                 button_Connect.Text = "Connect";
