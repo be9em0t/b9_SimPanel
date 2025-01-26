@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
@@ -86,19 +87,15 @@ namespace MSFSClient
             while (isConnected)
             {
                 //string message = "Client: " + DateTime.Now.ToString("HH:mm:ss");
-                string message = DateTime.Now.ToString("HH:mm:ss");
+                //string message = DateTime.Now.ToString("HH:mm:ss");
+                string message = "";
 
                 // Process commands from the queue
                 while (commandQueue.TryDequeue(out string command))
                 {
-                    message += " " + command;
+                    //message += " " + command;
+                    message = command;
                 }
-
-                //if (sendTaxiLightCommand)
-                //{
-                //    message += " LIGHT_TAXI_ON";
-                //    sendTaxiLightCommand = false; // Reset the flag after sending the command
-                //}
 
                 byte[] data = Encoding.UTF8.GetBytes(message);
                 try { 
@@ -116,6 +113,7 @@ namespace MSFSClient
 
         private void ReceiveData()
         {
+            Console.WriteLine(isConnected);
             while (isConnected)
             {
                 try
@@ -123,10 +121,19 @@ namespace MSFSClient
                     byte[] buffer = new byte[1024];
                     int bytesRead = stream.Read(buffer, 0, buffer.Length);
                     string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    Console.WriteLine(receivedData);
+
+                    var receivedSimDataDict = JsonConvert.DeserializeObject<Dictionary<string, object>>(receivedData);
+                    // Print out the dictionary content
+                    //foreach (var kvp in receivedSimDataDict)
+                    //{
+                    //    Console.WriteLine($"{kvp.Key}: {kvp.Value}");
+                    //}
+
 
                     Invoke(new Action(() =>
                     {
-                        txtResults.Text = "Received: " + receivedData;
+                        txtResults.Text = receivedData;
                     }));
 
                     //// Check for specific commands to send to SimConnect

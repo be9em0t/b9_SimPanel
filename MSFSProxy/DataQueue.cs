@@ -1,8 +1,4 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
+﻿using System;
 using System.Collections.Concurrent;
 
 namespace MSFServer
@@ -12,9 +8,15 @@ namespace MSFServer
         public static ConcurrentQueue<string> SimReceiveQueue = new ConcurrentQueue<string>();
         public static ConcurrentQueue<string> SimSendQueue = new ConcurrentQueue<string>();
 
+        // Define the event
+        public static event Action<string> DataReceived;
+
         public static void EnqueueReceive(string data)
         {
             SimReceiveQueue.Enqueue(data);
+            DataReceived?.Invoke(data); // Raise the event
+
+            Console.WriteLine($"Queue Size: {SimReceiveQueue.Count}");
         }
 
         public static bool TryDequeueReceive(out string data)

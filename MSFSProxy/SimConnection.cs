@@ -11,6 +11,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Linq;
 
 namespace MSFServer
 {
@@ -56,13 +57,17 @@ namespace MSFServer
         public void Start(bool simRawData)
         {
             IsSimRawData = simRawData ? 1 : 0;
-            simConnect.RequestDataOnSimObject(
-                DATA_REQUESTS.Request1,
-                DEFINITIONS.Struct1,
-                SimConnect.SIMCONNECT_OBJECT_ID_USER,
-                SIMCONNECT_PERIOD.SECOND,
-                SIMCONNECT_DATA_REQUEST_FLAG.DEFAULT,
-                0, 0, 0);
+            if (simConnect != null)
+            {
+                simConnect.RequestDataOnSimObject(
+                    DATA_REQUESTS.Request1,
+                    DEFINITIONS.Struct1,
+                    SimConnect.SIMCONNECT_OBJECT_ID_USER,
+                    SIMCONNECT_PERIOD.SECOND,
+                    SIMCONNECT_DATA_REQUEST_FLAG.DEFAULT,
+                    0, 0, 0);
+            }
+            else Console.WriteLine("Simconnect not available");
         }
 
         public void Stop()
@@ -94,13 +99,15 @@ namespace MSFServer
         {
             if ((DATA_REQUESTS)data.dwRequestID == DATA_REQUESTS.Request1)
             {
+                //Console.WriteLine("SimConnect_OnRecvSimobjectData");
                 Struct1 receivedSimData = (Struct1)data.dwData[0];
 
                 // Convert struct to dictionary for comparison
                 var receivedSimDataDict = StructToDictionary(receivedSimData);
 
-                Console.WriteLine(IsSimRawData);
+                //Console.WriteLine(IsSimRawData);
                 var simDataDict = DetectChangesDict(receivedSimDataDict, IsSimRawData);
+                //Console.WriteLine(simDataDict.Keys.First());
 
                 if (simDataDict.Count > 0)
                 {
@@ -108,7 +115,7 @@ namespace MSFServer
                     string simDataJson = JsonConvert.SerializeObject(simDataDict);
 
                     DataQueues.EnqueueReceive(simDataJson);
-                    Console.WriteLine("< " + simDataJson);
+                    //Console.WriteLine("< " + simDataJson);
                 }
             }
         }
