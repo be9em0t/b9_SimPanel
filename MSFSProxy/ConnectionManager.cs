@@ -26,8 +26,8 @@ namespace MSFServer
             server = new TcpListener(IPAddress.Any, port);
             simConnection = new SimConnection();
             windowHandle = handle;
-            // Subscribe to the DataReceived event
-            DataQueues.DataReceived += OnDataReceived;
+            // Subscribe to the SimDataReceived event
+            DataQueues.SimDataReceived += OnSimDataReceived;
         }
 
         public void Start()
@@ -68,7 +68,7 @@ namespace MSFServer
                     client = server.AcceptTcpClient();
                     stream = client.GetStream();
 
-                    Thread receiveThread = new Thread(HandleClientComm);
+                    Thread receiveThread = new Thread(OnClientDataReceived);
                     receiveThread.IsBackground = true;
                     receiveThread.Start();
                 }
@@ -86,7 +86,7 @@ namespace MSFServer
             }
         }
 
-        private void OnDataReceived(string data)
+        private void OnSimDataReceived(string data)
         {
             Console.WriteLine("> Queue " + data);
 
@@ -97,15 +97,18 @@ namespace MSFServer
                     byte[] bytesToSend = Encoding.UTF8.GetBytes(data);
                     stream.Write(bytesToSend, 0, bytesToSend.Length);
                     Console.WriteLine("> Client" + data);
+
+                    // Clear the queue
+                    while (DataQueues.SimReceiveQueue.TryDequeue(out _)) { }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error in OnDataReceived: " + ex.Message);
+                    Console.WriteLine("Error in OnSimDataReceived: " + ex.Message);
                 }
             }
         }
 
-        private void HandleClientComm()
+        private void OnClientDataReceived()
         {
             while (IsListening && client.Connected)
             {
@@ -127,7 +130,7 @@ namespace MSFServer
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error in HandleClientComm: " + ex.Message);
+                    Console.WriteLine("Error in OnClientDataReceived: " + ex.Message);
                     break;
                 }
             }
@@ -138,50 +141,6 @@ namespace MSFServer
             if (client != null)
                 client.Close();
         }
-
-        //private void HandleClientCommOLD()
-        //{
-        //    while (IsListening && client.Connected)
-        //    {
-        //        try
-        //        {
-        //            byte[] buffer = new byte[1024];
-        //            int bytesRead = stream.Read(buffer, 0, buffer.Length);
-        //            if (bytesRead == 0) break;  // Connection closed
-
-        //            // message structure
-        //            string receivedSimData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-        //            Console.WriteLine("< Client" + receivedSimData);
-
-        //            // Check for specific commands to send to SimConnect
-        //            if (receivedSimData.Contains("LIGHT_TAXI_ON"))
-        //            {
-        //                simConnection.SendTaxiLightEvent();
-        //            }
-
-        //            // Acquire data to send
-        //            if (DataQueues.TryDequeueReceive(out string dataToSend))
-        //            {
-        //                //string response = "From sim: " + dataToSend;
-        //                string response = dataToSend;
-        //                byte[] data = Encoding.UTF8.GetBytes(response);
-        //                stream.Write(data, 0, data.Length);
-        //                Console.WriteLine("> Client" + data);
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            MessageBox.Show("Error in HandleClientComm: " + ex.Message);
-        //            break;
-        //        }
-        //    }
-
-        //    // Clean-up after client disconnects
-        //    if (stream != null)
-        //        stream.Close();
-        //    if (client != null)
-        //        client.Close();
-        //}
 
         public void ReceiveMessage(Message m)
         {

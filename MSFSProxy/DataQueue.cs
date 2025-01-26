@@ -9,14 +9,14 @@ namespace MSFServer
         public static ConcurrentQueue<string> SimSendQueue = new ConcurrentQueue<string>();
 
         // Define the event
-        public static event Action<string> DataReceived;
+        public static event Action<string> SimDataReceived;
 
         public static void EnqueueReceive(string data)
         {
             SimReceiveQueue.Enqueue(data);
-            DataReceived?.Invoke(data); // Raise the event
+            SimDataReceived?.Invoke(data); // Raise the event
 
-            Console.WriteLine($"Queue Size: {SimReceiveQueue.Count}");
+            //Console.WriteLine($"Queue Size: {SimReceiveQueue.Count}");
         }
 
         public static bool TryDequeueReceive(out string data)
